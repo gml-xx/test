@@ -8,11 +8,13 @@
 <script>
     /**
      * 解析URL
-     * @param url {URL} url字符串
+     * @param url {URL | string} url字符串
      * @return {object} url对象
      * */
     function parseUrl(url) {
+        // 创建并返回一个URL对象
         const { hash, host,pathname: path,protocol,search } = new URL(url)
+        // 处理params字符串
         const searchParams = new URLSearchParams(search)
         let params = {}
         for (const [key, value] of searchParams) {
@@ -31,7 +33,7 @@
         }
     }
 
-    console.log(parseUrl("http://www.bbkedu.com/product/list?id=123456&sort=discount&name=a&name=b#title"));;
+    console.log(parseUrl("http://www.bbkedu.com/product/list?id=123456&sort=discount&name=a&name=b#title"));
 </script>
 </body>
 </html>
