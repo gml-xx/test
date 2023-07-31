@@ -31,6 +31,51 @@
             params,
             hash: hash.slice(1)
         }
+        // 方式二
+        // let obj = {
+        //     protocol: '',
+        //     host: '',
+        //     path: '',
+        //     params: '',
+        //     hash: ''
+        // }
+        // let temp = url.split("://")
+        // // 按顺序截取 protocol host path
+        // obj.protocol = temp[0]
+        // obj.host = temp[1].slice(0, temp[1].indexOf('/'))
+        // obj.path = temp[1].slice(obj.host.length, Math.min(temp[1].indexOf('?'), temp[1].indexOf('#')))
+        // let remainStr = temp[1].slice(obj.host.length + obj.path.length)
+        //
+        // /**
+        //  * 参数字符串转对象
+        //  * @param str {string} 参数字符串
+        //  * @return {object} 参数对象
+        //  * */
+        // function paramsToObj(str) {
+        //     const temp = str.split('&')
+        //     return temp.reduce((params, item) => {
+        //         const [key, value] = item.split('=')
+        //         if (!params[key]) {
+        //             params[key] = value
+        //         } else {
+        //             params[key] = [...params[key], value]
+        //         }
+        //         return params
+        //     }, {})
+        // }
+        //
+        // // 拆分 hash 和 params
+        // if (remainStr[0] === '?') {
+        //     temp = remainStr.split('#')
+        //     obj.hash = temp[1]
+        //     obj.params = paramsToObj(temp[0].slice(1))
+        // } else {
+        //     temp = remainStr.split('?')
+        //     obj.hash = temp[0].slice(1)
+        //     obj.params = paramsToObj(temp[1])
+        // }
+        //
+        // return obj
     }
 
     console.log(parseUrl("http://www.bbkedu.com/product/list?id=123456&sort=discount&name=a&name=b#title"));
