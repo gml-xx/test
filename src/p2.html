@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    /**
+     * 解析URL
+     * @param url {URL} url字符串
+     * @return {object} url对象
+     * */
+    function parseUrl(url) {
+        const { hash, host,pathname: path,protocol,search } = new URL(url)
+        const searchParams = new URLSearchParams(search)
+        let params = {}
+        for (const [key, value] of searchParams) {
+            if (!params[key]) {
+                params[key] = value
+            } else {
+                params[key] = [...params[key], value]
+            }
+        }
+        return {
+            protocol: protocol.slice(0, -1),
+            host,
+            path,
+            params,
+            hash: hash.slice(1)
+        }
+    }
+
+    console.log(parseUrl("http://www.bbkedu.com/product/list?id=123456&sort=discount&name=a&name=b#title"));;
+</script>
+</body>
+</html>
