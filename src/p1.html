@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
         .container {
             display: flex;
             width: 500px;
-            margin: 0 auto;
+            margin: 100px auto;
             gap: 20px;
         }
 
@@ -16,6 +21,85 @@
             width: 100%;
             height: 30px;
             border: 1px solid #eee;
+        }
+
+        .container .select-container {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+            height: 40px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            --padding: 10px;
+            user-select: none;
+        }
+
+        .select-container input {
+            border: none;
+            outline: none;
+            width: 100%;
+            height: 100%;
+            padding: var(--padding);
+            cursor: pointer;
+            font-size: inherit;
+            box-sizing: border-box;
+        }
+
+        .select-container:focus-within .select-box::before {
+            transform: rotate(180deg);
+        }
+
+        .select-container:focus-within .options-box {
+            max-height: 300px;
+        }
+
+        .select-box {
+            position: relative;
+        }
+
+        .select-container .select-box::before {
+            --size: 7px;
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border-bottom: var(--size) solid transparent;
+            border-left: var(--size) solid transparent;
+            border-right: var(--size) solid transparent;
+            border-top: var(--size) solid #cccccc;
+            transform-origin: 50% 25%;
+            transition: transform 0.5s;
+            will-change: transform;
+        }
+
+        .options-box {
+            position: absolute;
+            top: 105%;
+            left: 0;
+            width: 100%;
+            max-height:0;
+            box-shadow: 0 1px 5px #cccccc;
+            overflow-y: scroll;
+            transition: max-height .5s;
+        }
+
+        .options-box ul {
+            width: inherit;
+            box-sizing: border-box;
+            list-style: none;
+            outline: 1px solid #cccccc;
+        }
+
+        .options-box li {
+            padding: var(--padding);
+            cursor: pointer;
+        }
+
+        .options-box li:hover {
+            color: white;
+            background-color: rgb(115, 191, 114);
         }
     </style>
 </head>
@@ -31,6 +115,10 @@
         <option value="">请选择</option>
     </select>
 </div>
+<hr />
+<!--第二种-->
+<div class="container"></div>
+
 <a href="p2.html">跳转到p2</a>
 <script>
     const sourceData = [
@@ -94,6 +182,86 @@
             }
         })
     })
+
+/*-----------------------------------第二种-------------------------------------------*/
+    /**
+     * 转换数据结构
+     * @param target {array} 原始数据
+     * @param keyword {string}
+     * @return {object} 处理结果
+     * */
+    function dataTransform(target, keyword) {
+        let typeList = new Set()
+        return {
+            data: target.reduce((map, item) => {
+                typeList.add(item.type)
+                const key = item[keyword] || '*'
+                map.set(key, [...(map.get(key) || []), item])
+                return map
+            }, new Map()),
+            typeSize: typeList.size
+        }
+    }
+
+    const container = document.querySelectorAll('.container')[1]
+
+    /**
+     * typeSize type字段不同值的次数
+     * data 通过生成以parentId为键的 map集合数据 和 类型数量
+     * */
+    const {typeSize, data} = dataTransform(sourceData, 'parentId')
+    // 已经行政区划类型数量生成多个选择器
+    for (let i = 0; i < typeSize; i++) {
+        const template = ' <div class="select-box">\n' +
+            '            <input type="text" readonly value="请选择" />\n' +
+            '        </div>\n' +
+            '        <div class="options-box"><ul><li>请选择</li></ul></div>'
+        const selectCon = document.createElement('div')
+        selectCon.className = 'select-container'
+        selectCon.innerHTML = template
+
+        container.appendChild(selectCon)
+    }
+    /**
+     * 生成选项元素
+     * @param container {Element} 父容器
+     * @param areaData {array} 数据
+     * */
+    function optionsRender(container, areaData) {
+        container.innerHTML = areaData.reduce((a, b) => {
+            const {displayName, id} = b
+            a += `<li data-id="${id}">${displayName}</li>`
+            return a
+        }, '<li>请选择</li>')
+
+         // 绑定事件
+        addEvent(container)
+    }
+    /**
+     * 给元素绑定点击事件，并改变后续选择器
+     * */
+    function addEvent(ele) {
+        const parentNode =  ele.closest('.select-container')
+        Array.from(ele.children).forEach(item => {
+            item.addEventListener('click', e => {
+                let {dataset: {id}, innerText} = e.target
+                // 更新显示数据选择
+                parentNode.querySelector('.select-box input').value = innerText
+
+                let next = parentNode.nextElementSibling
+                while (!!next) {
+                    const areaData = data.get(Number(id)) || []
+                    optionsRender(next.querySelector('.options-box ul'), areaData)
+                    next.querySelector('.select-box input').value = '请选择'
+                    next = next.nextElementSibling
+                    id = ''
+                }
+            })
+        })
+    }
+    const ul = document.querySelector('.options-box ul')
+    // * 表示parentId 为null，及最高行政区
+    optionsRender(ul, data.get('*'))
 
 </script>
 </body>
